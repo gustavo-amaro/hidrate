@@ -68,12 +68,3 @@ meta_ml = round(BSA × 1500 × fator / 50) × 50
 ```
 
 Para um adulto de 70 kg e 170 cm com atividade moderada, isso resulta em aproximadamente **3,1 L/dia**. A meta sempre pode ser sobrescrita manualmente nos ajustes.
-
-## Build de produção
-
-```bash
-npm install -g eas-cli
-eas build --platform android   # ou ios
-```
-
-Configure seu projeto EAS antes (veja a documentação oficial em https://docs.expo.dev/build/setup/).
