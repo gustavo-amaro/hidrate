@@ -1,50 +1,79 @@
-# Welcome to your Expo app 👋
+# Hidrate — Lembrete de beber água
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App Expo + React Native (TypeScript) que ajuda você a manter sua hidratação em dia. Calcula uma meta diária a partir do seu peso e altura, distribui lembretes ao longo do dia (entre o horário de acordar e dormir) e registra seu progresso, com histórico semanal e streak de dias na meta.
 
-## Get started
+Tudo funciona **offline**: nada de contas, login ou backend. Seus dados ficam no celular via `AsyncStorage`.
 
-1. Install dependencies
+## Recursos
 
-   ```bash
-   npm install
-   ```
+- Onboarding em 3 passos (peso/altura, rotina, meta).
+- Cálculo da meta diária pela área de superfície corporal (Mosteller) ajustada por nível de atividade.
+- Possibilidade de definir meta manualmente.
+- Lembretes locais distribuídos uniformemente entre os horários de acordar e dormir.
+- Home com anel de progresso animado e botões rápidos para registrar 200 / 300 / 500 ml (ou valor customizado).
+- Histórico dos últimos 7 dias com gráfico de barras, média semanal, melhor dia, dias na meta e streak.
+- Dark mode automático.
 
-2. Start the app
+## Stack
 
-   ```bash
-   npx expo start
-   ```
+- Expo SDK 54 (com nova arquitetura habilitada)
+- expo-router (roteamento por arquivos)
+- expo-notifications, expo-haptics, expo-linear-gradient
+- @react-native-async-storage/async-storage
+- react-native-reanimated, react-native-svg
+- @react-native-community/datetimepicker
+- date-fns
 
-In the output, you'll find options to open the app in a
+## Como rodar
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Requer Node.js 18+ e o app **Expo Go** ou um build de desenvolvimento.
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Em seguida, escaneie o QR code com o app Expo Go (Android/iOS) ou pressione `a` / `i` para abrir em um emulador.
 
-## Learn more
+> Importante: notificações agendadas locais funcionam em dispositivos físicos. Algumas restrições do Expo Go podem aparecer dependendo da plataforma — se precisar testar lembretes com fidelidade, gere um build de desenvolvimento com `npx expo run:android` / `npx expo run:ios` ou use o EAS Build.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Estrutura
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+app/
+  _layout.tsx            # Root: providers + gate de onboarding
+  onboarding.tsx         # Wizard de 3 passos
+  (tabs)/
+    _layout.tsx          # Barra de abas (Hoje, Histórico, Ajustes)
+    index.tsx            # Tela Hoje
+    history.tsx          # Tela Histórico
+    settings.tsx         # Tela Ajustes
+components/              # WaterRing, QuickAddRow, WeeklyChart, StreakBadge, StatCard...
+lib/
+  AppContext.tsx         # Estado global (perfil + log do dia)
+  storage.ts             # Wrapper de AsyncStorage
+  goal.ts                # Cálculo de meta (BSA Mosteller × fator de atividade)
+  notifications.ts       # Permissões + agendamento dos lembretes
+  streak.ts              # Streak e resumos
+  theme.ts               # Paleta light/dark
+types/index.ts           # Tipos compartilhados
+```
 
-## Join the community
+## Fórmula da meta
 
-Join our community of developers creating universal apps.
+```
+BSA = sqrt(peso_kg × altura_cm / 3600)       # Mosteller
+fator = sedentário 1.0 | moderado 1.15 | ativo 1.3
+meta_ml = round(BSA × 1500 × fator / 50) × 50
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Para um adulto de 70 kg e 170 cm com atividade moderada, isso resulta em aproximadamente **3,1 L/dia**. A meta sempre pode ser sobrescrita manualmente nos ajustes.
+
+## Build de produção
+
+```bash
+npm install -g eas-cli
+eas build --platform android   # ou ios
+```
+
+Configure seu projeto EAS antes (veja a documentação oficial em https://docs.expo.dev/build/setup/).
