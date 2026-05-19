@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { format, parseISO, subDays } from "date-fns";
+import { addDays, format, parseISO, startOfWeek, subDays } from "date-fns";
 
 import type { DailyLog, DrinkEntry, UserProfile } from "@/types";
 
@@ -90,6 +90,16 @@ export async function getLastNLogs(n: number): Promise<DailyLog[]> {
   }
   const results = await Promise.all(dates.map((d) => getLog(d)));
   return results;
+}
+
+/** Domingo a sábado da semana que contém `anchor` (padrão: hoje). */
+export async function getCurrentWeekLogs(anchor: Date = new Date()): Promise<DailyLog[]> {
+  const sunday = startOfWeek(anchor, { weekStartsOn: 0 });
+  const dates: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    dates.push(todayKey(addDays(sunday, i)));
+  }
+  return Promise.all(dates.map((d) => getLog(d)));
 }
 
 export async function getAllLogs(): Promise<DailyLog[]> {

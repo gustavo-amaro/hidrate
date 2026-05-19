@@ -9,7 +9,7 @@ import { StreakBadge } from "@/components/StreakBadge";
 import { WeeklyChart } from "@/components/WeeklyChart";
 import { useApp } from "@/lib/AppContext";
 import { formatMl } from "@/lib/goal";
-import { getLastNLogs } from "@/lib/storage";
+import { getCurrentWeekLogs } from "@/lib/storage";
 import { computeStreak, summarizeLogs } from "@/lib/streak";
 import { getTheme } from "@/lib/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -36,10 +36,10 @@ export default function HistoryScreen() {
     useCallback(() => {
       let active = true;
       (async () => {
-        const last7 = await getLastNLogs(7);
+        const weekLogs = await getCurrentWeekLogs();
         const streakValue = await computeStreak(goalMl);
         if (!active) return;
-        setLogs(last7);
+        setLogs(weekLogs);
         setStreak(streakValue);
       })();
       return () => {
@@ -61,7 +61,7 @@ export default function HistoryScreen() {
           <View style={styles.header}>
             <Text style={[styles.title, { color: theme.colors.text }]}>Histórico</Text>
             <Text style={[styles.subtitle, { color: theme.colors.textMuted }]}>
-              Acompanhe sua hidratação dos últimos 7 dias.
+              Acompanhe sua hidratação nesta semana (domingo a sábado).
             </Text>
           </View>
 
@@ -74,7 +74,7 @@ export default function HistoryScreen() {
             ]}
           >
             <View style={styles.cardHeader}>
-              <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Últimos 7 dias</Text>
+              <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Esta semana</Text>
               <View style={styles.legend}>
                 <View style={[styles.legendDot, { backgroundColor: theme.colors.primary }]} />
                 <Text style={[styles.legendText, { color: theme.colors.textMuted }]}>
